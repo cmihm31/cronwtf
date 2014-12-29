@@ -59,6 +59,7 @@ var CronWTF = {
     return value.split(",")
   },
 
+  // on minute :00, every hour, on months July, August, every week day
   generateMessage: function(entry) {
     var attribs   = ['minute', 'hour', 'day', 'month' ]
     var attribLen = attribs.length;
@@ -117,9 +118,14 @@ var CronWTF = {
       var num = Number(values[i]);
       ordinals.push(CronWTF.ordinalize(num))
     }
-    console.log(ordinals.join(", ").lastIndexOf(','))
-    m += " " + ordinals.join(", ") + ' day';
-    if(values.length > 1) m += 's';
+    var joined = ordinals.join(", ")
+    var insert_point = joined.lastIndexOf(',') + 1;
+    if(values.length > 1){
+      m += ' ' + joined.substr(0, insert_point) + ' and ' + joined.substr(insert_point) + ' day';
+      m += 's';
+    }else{
+      m += ' ' + joined + ' day';
+    }
     return m;
   },
 
