@@ -33,30 +33,46 @@ var CronWTF = {
   // 1,2,3 - those values
   // 1-3   - range of values
   // */3   - steps
+  // 1,5-7 - those values plus a range
   parseAttribute: function(value, upperBound) {
-    if(value == '*') return value;
-
-    if(value.match(/^\*\/\d+$/)) {
-      step  = parseInt(value.match(/^\*\/(\d+)$/)[1])
-      range = []
-      for(i = 0; i < upperBound; i++) {
-        if(i % step == 0) range.push(i)
+    if((value.indexOf(',') > -1)&&(value.indexOf('-') > -1)){
+      var tmp = value.split(',');
+      var all_values = [];
+      for(var i = 0, l = tmp.length; i<l; i++){
+        var num = tmp[i];
+        if(num.indexOf('-') > -1){
+          all_values = all_values.concat(this.generateRangeArray(num));     
+        }else{
+          all_values.push(num);
+        }
       }
-      return range
-    } 
-    
-    if(value.match(/^\d+\-\d+$/)) {
-      matches = value.match(/^(\d+)\-(\d+)$/)
-      lower   = parseInt(matches[1])
-      upper   = parseInt(matches[2])
-      range   = []
-      for(var i = lower; i <= upper; i++) {
-        range.push(i);
+      return all_values;
+    }else{
+      if(value == '*') return value;
+      if(value.match(/^\*\/\d+$/)) {
+        step  = parseInt(value.match(/^\*\/(\d+)$/)[1])
+        range = []
+        for(i = 0; i < upperBound; i++) {
+          if(i % step == 0) range.push(i)
+        }
+        return range
+      } 
+      if(value.match(/^\d+\-\d+$/)) {
+        return this.generateRangeArray(value);
       }
-      return range
+      return value.split(",")
     }
+  },
 
-    return value.split(",")
+  generateRangeArray: function(range){
+    var matches = range.match(/^(\d+)\-(\d+)$/)
+    var lower   = parseInt(matches[1])
+    var upper   = parseInt(matches[2])
+    var numbers   = []
+    for(var i = lower; i <= upper; i++) {
+      numbers.push(i);
+    }
+    return numbers    
   },
 
   // on minute :00, every hour, on months July, August, every week day
